@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags: []
   layers:
   - Default
@@ -41,3 +41,23 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Ground
+    uniqueID: 4250352807
+    locked: 0
+  - name: WalkInFront
+    uniqueID: 1651762075
+    locked: 0
+  - name: Collision
+    uniqueID: 249953885
+    locked: 0
+  - name: Player
+    uniqueID: 3212610119
+    locked: 0
+  - name: WalkBehind
+    uniqueID: 4027049141
+    locked: 0
+  - name: Decor
+    uniqueID: 2557984633
+    locked: 0
+  m_RenderingLayers:
+  - Default
