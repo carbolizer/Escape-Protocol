@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 moveInput;
     public float speed;
+    public bool hasBadge = false;
 
     private void Awake()
     {
