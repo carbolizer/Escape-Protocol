@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     public bool hasBadge = false;
     public bool isHidden = false;
     public bool canHide = false;
+    public bool isMoving = false;
 
     [Header("Combat")]
     public GameObject meleeHitbox;
@@ -57,6 +58,9 @@ public class PlayerController : MonoBehaviour
         {
             moveInput = Vector2.right;
         }
+
+        // If our move input is NOT zero, we are moving (making noise)
+        isMoving = moveInput != Vector2.zero;
 
         // HIDING LOGIC
         // If the player is in a hiding spot AND holding the 'F' key

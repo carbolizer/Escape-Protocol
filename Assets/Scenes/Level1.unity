@@ -317,6 +317,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyExecution
   executionTime: 0.5
+--- !u!114 &1470069708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1470069700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66d596220c23f6a498116f50c1123637, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
+  patrolSpeed: 2
+  patrolDistance: 4
+  waitTime: 1.5
+  hearingRadius: 5
+  investigateSpeed: 3.5
+--- !u!50 &1470069709
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1470069700}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
 --- !u!1 &1500370547
 GameObject:
   m_ObjectHideFlags: 0
@@ -612,7 +656,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 389687577367117457, guid: f49b64195fb28794bbedc96182c23a41, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 1047612670076951724, guid: f49b64195fb28794bbedc96182c23a41, type: 3}
@@ -622,6 +667,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8435353398618365375, guid: f49b64195fb28794bbedc96182c23a41, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1470069707}
+    - targetCorrespondingSourceObject: {fileID: 8435353398618365375, guid: f49b64195fb28794bbedc96182c23a41, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1470069708}
+    - targetCorrespondingSourceObject: {fileID: 8435353398618365375, guid: f49b64195fb28794bbedc96182c23a41, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1470069709}
   m_SourcePrefab: {fileID: 100100000, guid: f49b64195fb28794bbedc96182c23a41, type: 3}
 --- !u!1001 &2355337069063147847
 PrefabInstance:
