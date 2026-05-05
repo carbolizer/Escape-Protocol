@@ -774,6 +774,14 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 7843333974705483539, guid: f49b64195fb28794bbedc96182c23a41, type: 3}
+      propertyPath: hearingRadius
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7843333974705483539, guid: f49b64195fb28794bbedc96182c23a41, type: 3}
+      propertyPath: investigateSpeed
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8435353398618365375, guid: f49b64195fb28794bbedc96182c23a41, type: 3}
       propertyPath: m_Name
       value: Enemy
