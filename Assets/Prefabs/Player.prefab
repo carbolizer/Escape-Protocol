@@ -221,8 +221,11 @@ MonoBehaviour:
   hasBadge: 0
   isHidden: 0
   canHide: 0
+  isMoving: 0
   meleeHitbox: {fileID: 3599623731577759777}
   attackDuration: 0.2
+  canExecute: 0
+  executionTarget: {fileID: 0}
 --- !u!61 &7024532187392748667
 BoxCollider2D:
   m_ObjectHideFlags: 0
