@@ -1,8 +1,19 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // Required for loading scenes
+using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem; 
 
 public class SceneController : MonoBehaviour
 {
+    void Update()
+    {
+        // If we are in Level 1 and the user hits Escape, load the Title Screen
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            // Change "TitleScreen" to whatever your main menu scene is named
+            SceneManager.LoadScene("TitleScreen");
+        }
+    }
+
     [Header("Scene to Load")]
     [Tooltip("Type the exact name of the scene you want to load next")]
     public string nextSceneName;
@@ -32,5 +43,10 @@ public class SceneController : MonoBehaviour
                 Debug.Log("Door Locked: You need the Security Badge!");
             }
         }
+    }
+    public void QuitGame()
+    {
+        Debug.Log("Game is Exiting!"); 
+        Application.Quit(); // This is the line that actually closes the built .exe
     }
 }
