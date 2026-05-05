@@ -16,6 +16,10 @@ public class PlayerController : MonoBehaviour
     public float attackDuration = 0.2f;
     private float attackTimer = 0f;
 
+    [Header("Stealth Kill")]
+    public bool canExecute = false;
+    public GameObject executionTarget;
+
     private void Awake()
     {
         inputActions = new();
@@ -84,6 +88,17 @@ public class PlayerController : MonoBehaviour
             if (attackTimer <= 0)
             {
                 meleeHitbox.SetActive(false);
+            }
+        }
+
+        // EXECUTION LOGIC
+        // If we are in the zone, press F, and have a valid target
+        if (canExecute && UnityEngine.InputSystem.Keyboard.current.fKey.wasPressedThisFrame)
+        {
+            if (executionTarget != null)
+            {
+                // Trigger the execution on that specific enemy
+                executionTarget.GetComponent<EnemyExecution>().StartExecution();
             }
         }
     }
