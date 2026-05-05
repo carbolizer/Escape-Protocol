@@ -123,6 +123,7 @@ GameObject:
   - component: {fileID: 3073204310549226300}
   - component: {fileID: 7024532187392748667}
   - component: {fileID: 1536533239976442050}
+  - component: {fileID: 4553794735203286411}
   m_Layer: 0
   m_Name: Marauder
   m_TagString: Player
@@ -299,3 +300,16 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &4553794735203286411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8618481198482313327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19640e1efa6b4c74fb69450a88490e62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  currentHealth: 3
