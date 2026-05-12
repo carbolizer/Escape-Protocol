@@ -581,6 +581,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Map2_Grid
       objectReference: {fileID: 0}
+    - target: {fileID: 7400499837616699002, guid: 3625c7c1851543a41a9353e02a295c38, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 0a38d5af24d550a40beb337ab81cec68, type: 2}
     - target: {fileID: 7409884225362232627, guid: 3625c7c1851543a41a9353e02a295c38, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.99
@@ -1469,7 +1473,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7617707187647768459, guid: 2cba2c606f4684841be0b3cfba0bc9f1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 20.5
+      value: 20.19
       objectReference: {fileID: 0}
     - target: {fileID: 7617707187647768459, guid: 2cba2c606f4684841be0b3cfba0bc9f1, type: 3}
       propertyPath: m_LocalPosition.y
