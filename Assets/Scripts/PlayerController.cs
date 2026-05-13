@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -26,6 +25,7 @@ public class PlayerController : MonoBehaviour
         inputActions = new();
         rb = GetComponent<Rigidbody2D>();
     }
+
     private void OnEnable()
     {
         inputActions.Enable();
@@ -59,33 +59,31 @@ public class PlayerController : MonoBehaviour
             moveInput = Vector2.right;
         }
 
-        // If our move input is NOT zero, we are moving (making noise)
         isMoving = moveInput != Vector2.zero;
 
-        // HIDING LOGIC
-        // If the player is in a hiding spot AND holding the 'F' key
-        if (canHide && UnityEngine.InputSystem.Keyboard.current.fKey.isPressed)
+        // --- DYNAMIC CAMOUFLAGE LOGIC (Hold F) ---
+        if (UnityEngine.InputSystem.Keyboard.current.fKey.isPressed && GameManager.Instance != null && GameManager.Instance.currentInvisEnergy > 0)
         {
             isHidden = true;
-            // Make the player semi-transparent to prove they are hiding
-            GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.5f);
+
+            GameManager.Instance.currentInvisEnergy -= GameManager.Instance.energyDrainRate * Time.deltaTime;
+            if (GameManager.Instance.currentInvisEnergy < 0) GameManager.Instance.currentInvisEnergy = 0;
+
+            GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.4f);
         }
         else
         {
             isHidden = false;
-            // Return to normal color
             GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
         }
 
-        // COMBAT LOGIC
-        // If we press Spacebar and aren't already attacking
+        // COMBAT LOGIC (Spacebar)
         if (UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame && attackTimer <= 0)
         {
-            meleeHitbox.SetActive(true); // Turn on the damage zone
-            attackTimer = attackDuration; // Start the cooldown
+            meleeHitbox.SetActive(true);
+            attackTimer = attackDuration;
         }
 
-        // Turn the hitbox back off after a split second
         if (attackTimer > 0)
         {
             attackTimer -= Time.deltaTime;
@@ -95,13 +93,12 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // EXECUTION LOGIC
-        // If we are in the zone, press F, and have a valid target
-        if (canExecute && UnityEngine.InputSystem.Keyboard.current.fKey.wasPressedThisFrame)
+        // --- UPDATED EXECUTION LOGIC (Press E) ---
+        // Swapped to 'E' so it doesn't conflict with holding 'F' to hide!
+        if (canExecute && UnityEngine.InputSystem.Keyboard.current.eKey.wasPressedThisFrame)
         {
             if (executionTarget != null)
             {
-                // Trigger the execution on that specific enemy
                 executionTarget.GetComponent<EnemyExecution>().StartExecution();
             }
         }
@@ -111,7 +108,4 @@ public class PlayerController : MonoBehaviour
     {
         rb.linearVelocity = moveInput * speed * Time.deltaTime;
     }
-
-
-
 }

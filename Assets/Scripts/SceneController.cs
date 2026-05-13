@@ -1,15 +1,15 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.InputSystem; 
+using UnityEngine.InputSystem;
 
 public class SceneController : MonoBehaviour
 {
     void Update()
     {
-        // If we are in Level 1 and the user hits Escape, load the Title Screen
+        // Flush global resource if backing out to title screen via Escape
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            // Change "TitleScreen" to whatever your main menu scene is named
+            if (GameManager.Instance != null) GameManager.Instance.ResetProgress();
             SceneManager.LoadScene("TitleScreen");
         }
     }
@@ -18,24 +18,33 @@ public class SceneController : MonoBehaviour
     [Tooltip("Type the exact name of the scene you want to load next")]
     public string nextSceneName;
 
-    // This method will be used by our UI Buttons
     public void LoadNextScene()
     {
+        // Ensure old energy states do not bleed into a brand new game loop
+        if (SceneManager.GetActiveScene().name == "TitleScreen" && GameManager.Instance != null)
+        {
+            GameManager.Instance.ResetProgress();
+        }
+
+        // Flush pool upon reaching final validation milestones
+        if (nextSceneName == "WinScreen" && GameManager.Instance != null)
+        {
+            GameManager.Instance.ResetProgress();
+        }
+
         SceneManager.LoadScene(nextSceneName);
     }
 
-    // This method handles the player walking into the exit door
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
             PlayerController player = collision.GetComponent<PlayerController>();
 
-            // Check if the player exists AND has the badge
             if (player != null && player.hasBadge == true)
             {
                 Debug.Log("Access Granted! Loading next level...");
-                player.hasBadge = false; // Reset the badge so they have to find a new one in the next level
+                player.hasBadge = false;
                 LoadNextScene();
             }
             else
@@ -44,9 +53,10 @@ public class SceneController : MonoBehaviour
             }
         }
     }
+
     public void QuitGame()
     {
-        Debug.Log("Game is Exiting!"); 
-        Application.Quit(); // This is the line that actually closes the built .exe
+        Debug.Log("Game is Exiting!");
+        Application.Quit();
     }
 }
