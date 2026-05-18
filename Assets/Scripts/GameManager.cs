@@ -4,6 +4,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    public static bool IsGamePaused { get; private set; }
 
     [Header("Stealth Resource")]
     public float maxInvisEnergy = 100f;
@@ -90,6 +91,20 @@ public class GameManager : MonoBehaviour
         return $"{minutes:00}:{seconds:00}";
     }
 
+    public int GetProjectedTimeBonus()
+    {
+        int timePenalty = Mathf.FloorToInt(RunElapsedSeconds) * timePenaltyPerSecond;
+        return Mathf.Max(0, maxTimeBonus - timePenalty);
+    }
+
+    public int GetCurrentScore()
+    {
+        if (RunFinalized)
+            return FinalScore;
+
+        return KillScore + GetProjectedTimeBonus();
+    }
+
     public void AddInvisEnergy(float amount)
     {
         currentInvisEnergy = Mathf.Clamp(currentInvisEnergy + amount, 0, maxInvisEnergy);
@@ -102,6 +117,7 @@ public class GameManager : MonoBehaviour
 
     public void ResetRun()
     {
+        SetGamePaused(false);
         EnemiesKilled = 0;
         KillScore = 0;
         TimeBonus = 0;
@@ -110,5 +126,11 @@ public class GameManager : MonoBehaviour
         IsRunActive = false;
         RunFinalized = false;
         ResetProgress();
+    }
+
+    public static void SetGamePaused(bool paused)
+    {
+        IsGamePaused = paused;
+        Time.timeScale = paused ? 0f : 1f;
     }
 }

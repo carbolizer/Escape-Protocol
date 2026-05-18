@@ -1,19 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.InputSystem;
 
 public class SceneController : MonoBehaviour
 {
-    void Update()
-    {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            if (GameManager.Instance != null)
-                GameManager.Instance.ResetRun();
-            SceneManager.LoadScene("TitleScreen");
-        }
-    }
-
     [Header("Scene to Load")]
     [Tooltip("Type the exact name of the scene you want to load next")]
     public string nextSceneName;

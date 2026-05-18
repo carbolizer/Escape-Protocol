@@ -40,6 +40,13 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.IsGamePaused)
+        {
+            moveInput = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
         moveInput = Vector2.zero;
 
         if (inputActions.Standard.MoveUp.IsPressed())
@@ -106,6 +113,12 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (GameManager.IsGamePaused)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
         rb.linearVelocity = moveInput * speed * Time.deltaTime;
     }
 }

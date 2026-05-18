@@ -12,6 +12,8 @@ public class Chest : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.IsGamePaused) return;
+
         // Permit looting if close, unlooted, and pressing 'E'
         if (isPlayerInRange && !isOpen && Keyboard.current.eKey.wasPressedThisFrame)
         {
