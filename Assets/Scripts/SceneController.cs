@@ -6,10 +6,10 @@ public class SceneController : MonoBehaviour
 {
     void Update()
     {
-        // Flush global resource if backing out to title screen via Escape
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            if (GameManager.Instance != null) GameManager.Instance.ResetProgress();
+            if (GameManager.Instance != null)
+                GameManager.Instance.ResetRun();
             SceneManager.LoadScene("TitleScreen");
         }
     }
@@ -20,16 +20,22 @@ public class SceneController : MonoBehaviour
 
     public void LoadNextScene()
     {
-        // Ensure old energy states do not bleed into a brand new game loop
-        if (SceneManager.GetActiveScene().name == "TitleScreen" && GameManager.Instance != null)
+        string currentScene = SceneManager.GetActiveScene().name;
+
+        if (currentScene == "TitleScreen" && nextSceneName == "Level1" && GameManager.Instance != null)
         {
+            GameManager.Instance.StartNewRun();
+        }
+
+        if (nextSceneName == "WinScreen" && GameManager.Instance != null)
+        {
+            GameManager.Instance.FinalizeRun();
             GameManager.Instance.ResetProgress();
         }
 
-        // Flush pool upon reaching final validation milestones
-        if (nextSceneName == "WinScreen" && GameManager.Instance != null)
+        if (nextSceneName == "TitleScreen" && GameManager.Instance != null)
         {
-            GameManager.Instance.ResetProgress();
+            GameManager.Instance.ResetRun();
         }
 
         SceneManager.LoadScene(nextSceneName);

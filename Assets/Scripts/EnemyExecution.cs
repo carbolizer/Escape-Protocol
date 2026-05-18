@@ -1,14 +1,13 @@
 using UnityEngine;
-using System.Collections; // Required for Coroutines
+using System.Collections;
 
 public class EnemyExecution : MonoBehaviour
 {
-    public float executionTime = 0.5f; // How long the enemy flashes red
-    private bool isBeingExecuted = false;
+    public float executionTime = 0.5f;
+    private bool isBeingExecuted;
 
     public void StartExecution()
     {
-        // Prevent triggering the execution multiple times
         if (isBeingExecuted) return;
 
         isBeingExecuted = true;
@@ -17,18 +16,21 @@ public class EnemyExecution : MonoBehaviour
 
     private IEnumerator ExecuteRoutine()
     {
-        // 1. Flash Red
         GetComponent<SpriteRenderer>().color = Color.red;
 
-        // 2. Paralyze the enemy so they can't catch you while they die
-        GetComponent<Collider2D>().enabled = false;
+        Collider2D collider = GetComponent<Collider2D>();
+        if (collider != null) collider.enabled = false;
         if (GetComponent<EnemyVision>() != null) GetComponent<EnemyVision>().enabled = false;
         if (GetComponent<ConeSweep>() != null) GetComponent<ConeSweep>().enabled = false;
 
-        // 3. Wait for the animation to finish
         yield return new WaitForSeconds(executionTime);
 
-        // 4. Disappear!
+        EnemyPoints points = GetComponent<EnemyPoints>();
+        if (points != null)
+            points.AwardKillPoints();
+        else if (GameManager.Instance != null)
+            GameManager.Instance.RegisterEnemyKill(GameManager.Instance.defaultEnemyPointValue);
+
         Destroy(gameObject);
     }
 }

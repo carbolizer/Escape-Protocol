@@ -341,6 +341,7 @@ GameObject:
   m_Component:
   - component: {fileID: 321712902}
   - component: {fileID: 321712901}
+  - component: {fileID: 321712903}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -363,6 +364,22 @@ MonoBehaviour:
   maxInvisEnergy: 100
   currentInvisEnergy: 0
   energyDrainRate: 25
+  highScoreGameName: Escape Protocol 2
+  defaultEnemyPointValue: 100
+  maxTimeBonus: 5000
+  timePenaltyPerSecond: 10
+--- !u!114 &321712903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321712900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RunTimerHUD
 --- !u!4 &321712902
 Transform:
   m_ObjectHideFlags: 0

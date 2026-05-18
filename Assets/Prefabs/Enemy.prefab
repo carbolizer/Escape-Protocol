@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 1139210422228509566}
   - component: {fileID: 228839691013767924}
   - component: {fileID: 5465707122967336375}
+  - component: {fileID: 9182736450192837465}
   - component: {fileID: 4915198304376790618}
   - component: {fileID: 7843333974705483539}
   - component: {fileID: 5693695808876170335}
@@ -259,6 +260,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04b08a6145580a42abc7c895bca56fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KillableEnemy
+--- !u!114 &9182736450192837465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8435353398618365375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyPoints
+  pointValue: 100
 --- !u!114 &4915198304376790618
 MonoBehaviour:
   m_ObjectHideFlags: 0
