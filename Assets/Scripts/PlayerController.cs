@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -9,12 +10,14 @@ public class PlayerController : MonoBehaviour
     private InputActions inputActions;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
+    private PlayerHealth playerHealth;
     private Vector2 moveInput;
     private Vector2 currentVelocity;
     private bool isExecuting;
     private Collider2D bodyCollider;
     private bool phasingThroughEnemies;
     private readonly HashSet<Collider2D> phasedEnemyColliders = new HashSet<Collider2D>();
+    private Vector2 lastFacing = Vector2.right;
 
     [Header("Movement")]
     public float moveSpeed = 6.5f;
@@ -27,31 +30,55 @@ public class PlayerController : MonoBehaviour
     public bool canHide = false;
     public bool isMoving = false;
 
-    [Header("Combat")]
-    public GameObject meleeHitbox;
-    public float attackDuration = 0.2f;
-    private float attackTimer;
+    [Header("Dash (Space)")]
+    [Tooltip("Burst speed during the dash")]
+    public float dashSpeed = 18f;
+    [Tooltip("Total dash duration in seconds")]
+    public float dashDuration = 0.18f;
+    [Tooltip("Cooldown between dashes")]
+    public float dashCooldown = 0.7f;
+    [Tooltip("Stealth energy refunded for a clean dash, encouraging mobility")]
+    public float dashStealthRefund = 18f;
+    private float dashTimer;
+    private float dashCooldownTimer;
+    private Vector2 dashDirection;
+    public bool IsDashing => dashTimer > 0f;
+    public bool IsDashInvincible => IsDashing;
+
+    [Header("Throwables (Q)")]
+    public GameObject rockPrefab;
+    public int rocksPerLevel = 2;
+    public float throwSpeed = 14f;
+    public float throwLifetime = 1.5f;
+    public float distractionRadius = 4.5f;
+    public float distractionDuration = 3f;
+    private int rocksRemaining;
+    public int RocksRemaining => rocksRemaining;
 
     [Header("Stealth Kill")]
     public bool canExecute = false;
     public GameObject executionTarget;
     public float executionLungeSpeed = 14f;
     public float executionLungeTime = 0.12f;
+    public bool IsExecuting => isExecuting;
 
     private void Awake()
     {
         inputActions = new InputActions();
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        playerHealth = GetComponent<PlayerHealth>();
         bodyCollider = GetComponent<Collider2D>();
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         rb.linearDamping = 0f;
+        rocksRemaining = Mathf.Max(0, rocksPerLevel);
     }
 
     private void OnEnable()
     {
         inputActions.Enable();
         inputActions.Standard.Enable();
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
@@ -60,6 +87,12 @@ public class PlayerController : MonoBehaviour
         GameManager.ApplyGameplayTimeScale(false);
         inputActions.Standard.Disable();
         inputActions.Disable();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        rocksRemaining = Mathf.Max(0, rocksPerLevel);
     }
 
     private void Update()
@@ -77,12 +110,18 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        if (dashCooldownTimer > 0f)
+            dashCooldownTimer -= Time.deltaTime;
+        if (dashTimer > 0f)
+            dashTimer -= Time.deltaTime;
+
         ReadMovementInput();
         isMoving = moveInput.sqrMagnitude > 0.01f;
 
         UpdateSpriteFacing();
         UpdateStealthVisual();
         HandleCombatInput();
+        HandleThrowInput();
     }
 
     private void FixedUpdate()
@@ -91,6 +130,13 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = Vector2.zero;
             currentVelocity = Vector2.zero;
+            return;
+        }
+
+        if (IsDashing)
+        {
+            rb.linearVelocity = dashDirection * dashSpeed;
+            currentVelocity = rb.linearVelocity;
             return;
         }
 
@@ -108,6 +154,9 @@ public class PlayerController : MonoBehaviour
         else if (inputActions.Standard.MoveDown.IsPressed()) moveInput = Vector2.down;
         else if (inputActions.Standard.MoveLeft.IsPressed()) moveInput = Vector2.left;
         else if (inputActions.Standard.MoveRight.IsPressed()) moveInput = Vector2.right;
+
+        if (moveInput.sqrMagnitude > 0.01f)
+            lastFacing = moveInput.normalized;
     }
 
     private void UpdateSpriteFacing()
@@ -128,6 +177,7 @@ public class PlayerController : MonoBehaviour
                          GameManager.Instance != null &&
                          GameManager.Instance.currentInvisEnergy > 0;
 
+        Color targetColor;
         if (usingCamo)
         {
             isHidden = true;
@@ -135,7 +185,7 @@ public class PlayerController : MonoBehaviour
             if (GameManager.Instance.currentInvisEnergy < 0)
                 GameManager.Instance.currentInvisEnergy = 0;
 
-            spriteRenderer.color = new Color(0.75f, 0.85f, 1f, 0.45f);
+            targetColor = new Color(0.75f, 0.85f, 1f, 0.45f);
             GameManager.ApplyGameplayTimeScale(true);
         }
         else
@@ -143,17 +193,23 @@ public class PlayerController : MonoBehaviour
             isHidden = false;
             GameManager.ApplyGameplayTimeScale(false);
             if (canExecute)
-                spriteRenderer.color = new Color(1f, 0.55f, 0.6f, 1f);
+                targetColor = new Color(1f, 0.55f, 0.6f, 1f);
             else
-                spriteRenderer.color = Color.white;
+                targetColor = Color.white;
         }
+
+        // Damage feedback should override stealth tint enough to read instantly.
+        if (playerHealth != null && playerHealth.IsDamageFlashing)
+            targetColor = Color.Lerp(targetColor, Color.red, 0.8f);
+
+        spriteRenderer.color = targetColor;
 
         UpdateEnemyPhasing();
     }
 
     private void UpdateEnemyPhasing()
     {
-        bool shouldPhase = isHidden && !isExecuting;
+        bool shouldPhase = (isHidden || IsDashing) && !isExecuting;
 
         if (!shouldPhase)
         {
@@ -205,18 +261,45 @@ public class PlayerController : MonoBehaviour
 
         if (canExecute) return;
 
-        if (Keyboard.current.spaceKey.wasPressedThisFrame && attackTimer <= 0f)
-        {
-            meleeHitbox.SetActive(true);
-            attackTimer = attackDuration;
-        }
+        if (Keyboard.current.spaceKey.wasPressedThisFrame && dashCooldownTimer <= 0f && !IsDashing)
+            StartDash();
+    }
 
-        if (attackTimer > 0f)
-        {
-            attackTimer -= Time.deltaTime;
-            if (attackTimer <= 0f)
-                meleeHitbox.SetActive(false);
-        }
+    private void StartDash()
+    {
+        Vector2 dir = moveInput.sqrMagnitude > 0.01f ? moveInput.normalized : lastFacing;
+        if (dir.sqrMagnitude < 0.0001f)
+            dir = spriteRenderer != null && spriteRenderer.flipX ? Vector2.left : Vector2.right;
+
+        dashDirection = dir;
+        dashTimer = dashDuration;
+        dashCooldownTimer = dashCooldown;
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.AddInvisEnergy(dashStealthRefund);
+    }
+
+    private void HandleThrowInput()
+    {
+        if (!Keyboard.current.qKey.wasPressedThisFrame) return;
+        if (rocksRemaining <= 0) return;
+
+        Vector2 dir = lastFacing.sqrMagnitude > 0.0001f ? lastFacing.normalized : Vector2.right;
+        Vector3 spawnPos = transform.position + (Vector3)(dir * 0.5f);
+
+        GameObject rock = rockPrefab != null
+            ? Instantiate(rockPrefab, spawnPos, Quaternion.identity)
+            : new GameObject("Rock");
+
+        if (rockPrefab == null)
+            rock.transform.position = spawnPos;
+
+        RockProjectile projectile = rock.GetComponent<RockProjectile>();
+        if (projectile == null)
+            projectile = rock.AddComponent<RockProjectile>();
+
+        projectile.Launch(dir, throwSpeed, throwLifetime, distractionRadius, distractionDuration, transform);
+        rocksRemaining--;
     }
 
     private IEnumerator PerformStealthKill(EnemyExecution execution)

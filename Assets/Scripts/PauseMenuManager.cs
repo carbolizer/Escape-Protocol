@@ -140,13 +140,14 @@ public class PauseMenuManager : MonoBehaviour
 
         scoreText = CreateText(panel, "ScoreText", new Vector2(0, 175), new Vector2(700, 110), 24, "", TextAlignmentOptions.Center);
 
-        CreateText(panel, "ControlsText", new Vector2(0, -20), new Vector2(700, 280), 22,
+        CreateText(panel, "ControlsText", new Vector2(0, -20), new Vector2(700, 320), 22,
             "Controls\n\n" +
             "W / Up Arrow - Move Up\n" +
             "S / Down Arrow - Move Down\n" +
             "A / Left Arrow - Move Left\n" +
             "D / Right Arrow - Move Right\n" +
-            "Space - Loud melee (fewer points)\n" +
+            "Space - Dash (i-frames, phases enemies, refunds stealth)\n" +
+            "Q - Throw distraction rock (2 per level)\n" +
             "F (hold) - Stealth camouflage\n" +
             "E - Stealth kill / interact (best score)\n" +
             "P or Esc - Pause / Resume",
