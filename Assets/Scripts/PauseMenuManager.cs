@@ -85,7 +85,7 @@ public class PauseMenuManager : MonoBehaviour
         GameManager gm = GameManager.Instance;
         scoreText.text =
             $"Current Score: {gm.GetCurrentScore()}\n" +
-            $"Kills: {gm.EnemiesKilled} (+{gm.KillScore} pts)\n" +
+            $"Kills: {gm.EnemiesKilled} (Stealth: {gm.StealthKills}, +{gm.KillScore} pts)\n" +
             $"Time: {gm.GetFormattedRunTime()} (+{gm.GetProjectedTimeBonus()} pts)";
     }
 
@@ -145,9 +145,9 @@ public class PauseMenuManager : MonoBehaviour
             "S / Down Arrow - Move Down\n" +
             "A / Left Arrow - Move Left\n" +
             "D / Right Arrow - Move Right\n" +
-            "Space - Melee Attack\n" +
-            "F (hold) - Stealth Camouflage\n" +
-            "E - Interact / Stealth Kill\n" +
+            "Space - Loud melee (fewer points)\n" +
+            "F (hold) - Stealth camouflage\n" +
+            "E - Stealth kill / interact (best score)\n" +
             "P or Esc - Pause / Resume",
             TextAlignmentOptions.Left);
 

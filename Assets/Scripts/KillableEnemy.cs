@@ -16,7 +16,7 @@ public class KillableEnemy : MonoBehaviour
         if (points != null)
             points.AwardKillPoints();
         else if (GameManager.Instance != null)
-            GameManager.Instance.RegisterEnemyKill(GameManager.Instance.defaultEnemyPointValue);
+            GameManager.Instance.RegisterEnemyKill(GameManager.Instance.defaultEnemyPointValue, false);
 
         Destroy(gameObject);
     }

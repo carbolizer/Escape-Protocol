@@ -1,105 +1,135 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class EnemyAI : MonoBehaviour
 {
     [Header("Patrol Settings")]
     public float patrolSpeed = 2f;
-    public float patrolDistance = 4f; // How far they walk before turning around
-    public float waitTime = 1.5f;     // How long they stand still at the end of a patrol
+    public float patrolDistance = 4f;
+    public float waitTime = 1.5f;
 
-    [Header("Hearing System")]
+    [Header("Vision Detection")]
     public float hearingRadius = 5f;
-    public float investigateSpeed = 3.5f; // They walk faster when they hear you
+    [Tooltip("Half-angle of the forward detection cone in degrees")]
+    public float visionHalfAngle = 55f;
+    public float investigateSpeed = 3.5f;
+
+    [Header("Movement Feel")]
+    public float acceleration = 18f;
 
     private Vector2 startPos;
     private Vector2 patrolTarget;
     private bool movingToTarget = true;
-    private float waitTimer = 0f;
+    private float waitTimer;
+    private Vector2 currentVelocity;
 
     private Rigidbody2D rb;
     private PlayerController player;
+    private Transform visionForward;
 
-    void Start()
+    private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        rb.linearDamping = 0f;
+
         startPos = transform.position;
-        // Set the patrol point to the right of where they start
         patrolTarget = startPos + Vector2.right * patrolDistance;
-
-        // Find the player in the scene automatically
         player = FindAnyObjectByType<PlayerController>();
+        visionForward = FindLinkedVisionTransform();
     }
 
-    void Update()
+    private Transform FindLinkedVisionTransform()
     {
-        if (player == null) return;
+        ConeSweep[] cones = FindObjectsByType<ConeSweep>(FindObjectsSortMode.None);
+        Transform best = null;
+        float bestDistance = 2.5f;
 
-        // How far away is the player?
-        float distanceToPlayer = Vector2.Distance(transform.position, player.transform.position);
-
-        // Did the enemy hear the player? (Close enough + moving + not hiding)
-        bool canHearPlayer = distanceToPlayer <= hearingRadius && player.isMoving && !player.isHidden;
-
-        if (canHearPlayer)
+        for (int i = 0; i < cones.Length; i++)
         {
-            Investigate();
+            float distance = Vector2.Distance(transform.position, cones[i].transform.position);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                best = cones[i].transform;
+            }
         }
-        else
-        {
-            Patrol();
-        }
+
+        return best != null ? best : transform;
     }
 
-    void Investigate()
+    private void FixedUpdate()
     {
-        // Walk straight toward the player
-        Vector2 direction = (player.transform.position - transform.position).normalized;
-        rb.linearVelocity = direction * investigateSpeed;
-        FaceDirection(direction);
-    }
-
-    void Patrol()
-    {
-        // If we are waiting, stop moving and count down the timer
-        if (waitTimer > 0)
+        if (GameManager.IsGamePaused || player == null)
         {
-            waitTimer -= Time.deltaTime;
             rb.linearVelocity = Vector2.zero;
+            currentVelocity = Vector2.zero;
             return;
         }
 
-        // Figure out if we are walking toward the target or back to the start
+        float distanceToPlayer = Vector2.Distance(transform.position, player.transform.position);
+        bool canDetectPlayer = distanceToPlayer <= hearingRadius &&
+                               player.isMoving &&
+                               !player.isHidden &&
+                               IsPlayerInVisionArc();
+
+        Vector2 desiredVelocity = canDetectPlayer ? InvestigateVelocity() : PatrolVelocity();
+        currentVelocity = Vector2.MoveTowards(currentVelocity, desiredVelocity, acceleration * Time.fixedDeltaTime);
+        rb.linearVelocity = currentVelocity;
+
+        if (currentVelocity.sqrMagnitude > 0.05f)
+            FaceDirection(currentVelocity.normalized);
+    }
+
+    private Vector2 InvestigateVelocity()
+    {
+        Vector2 direction = ((Vector2)player.transform.position - (Vector2)transform.position).normalized;
+        return direction * investigateSpeed;
+    }
+
+    private Vector2 PatrolVelocity()
+    {
+        if (waitTimer > 0f)
+        {
+            waitTimer -= Time.fixedDeltaTime;
+            return Vector2.zero;
+        }
+
         Vector2 target = movingToTarget ? patrolTarget : startPos;
         Vector2 direction = (target - (Vector2)transform.position).normalized;
 
-        rb.linearVelocity = direction * patrolSpeed;
-        FaceDirection(direction);
-
-        // If we reach our destination, wait, and then turn around
         if (Vector2.Distance(transform.position, target) < 0.1f)
         {
             movingToTarget = !movingToTarget;
             waitTimer = waitTime;
+            return Vector2.zero;
         }
+
+        return direction * patrolSpeed;
     }
 
-    // This makes the entire enemy (and their vision cone/backstab zone) rotate!
-    void FaceDirection(Vector2 dir)
+    private void FaceDirection(Vector2 dir)
     {
-        if (dir != Vector2.zero)
-        {
-            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0, 0, angle);
+        if (dir == Vector2.zero) return;
 
-            // Prevent the sprite from doing a handstand when facing left
-            if (Mathf.Abs(angle) > 90)
-            {
-                GetComponent<SpriteRenderer>().flipY = true;
-            }
-            else
-            {
-                GetComponent<SpriteRenderer>().flipY = false;
-            }
-        }
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+        SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+        if (sprite != null)
+            sprite.flipY = Mathf.Abs(angle) > 90f;
+    }
+
+    private bool IsPlayerInVisionArc()
+    {
+        Vector2 toPlayer = (Vector2)player.transform.position - (Vector2)transform.position;
+        if (toPlayer.sqrMagnitude < 0.0001f) return false;
+
+        Vector2 forward = visionForward.right;
+        if (forward.sqrMagnitude < 0.0001f)
+            forward = transform.right;
+
+        float dot = Vector2.Dot(forward.normalized, toPlayer.normalized);
+        return dot >= Mathf.Cos(visionHalfAngle * Mathf.Deg2Rad);
     }
 }

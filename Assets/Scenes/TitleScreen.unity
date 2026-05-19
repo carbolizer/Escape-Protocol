@@ -367,8 +367,10 @@ MonoBehaviour:
   energyDrainRate: 25
   highScoreGameName: Escape Protocol 2
   defaultEnemyPointValue: 100
+  stealthKillPointValue: 150
   maxTimeBonus: 5000
   timePenaltyPerSecond: 10
+  stealthBarPrefab: {fileID: 100100000, guid: c8636dc9d4c022c45bd9fc643031680e, type: 3}
 --- !u!114 &321712903
 MonoBehaviour:
   m_ObjectHideFlags: 0

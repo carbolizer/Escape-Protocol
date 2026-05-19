@@ -49,7 +49,8 @@ public class WinScreenUI : MonoBehaviour
         scoreSummaryText.text =
             "Run Complete!\n\n" +
             $"Final Score: {gm.FinalScore}\n" +
-            $"Enemies Defeated: {gm.EnemiesKilled} (+{gm.KillScore} pts)\n" +
+            $"Enemies Defeated: {gm.EnemiesKilled} (Stealth: {gm.StealthKills})\n" +
+            $"Kill Score: +{gm.KillScore} pts\n" +
             $"Time: {gm.GetFormattedRunTime()} (+{gm.TimeBonus} pts)";
     }
 

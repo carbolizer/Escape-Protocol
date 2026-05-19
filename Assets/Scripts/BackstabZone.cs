@@ -6,11 +6,10 @@ public class BackstabZone : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            PlayerController player = collision.GetComponent<PlayerController>();
+            PlayerController player = collision.GetComponentInParent<PlayerController>();
             if (player != null)
             {
                 player.canExecute = true;
-                // Tell the player that the parent of this zone (the Enemy) is the target
                 player.executionTarget = transform.parent.gameObject;
             }
         }
@@ -20,7 +19,7 @@ public class BackstabZone : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            PlayerController player = collision.GetComponent<PlayerController>();
+            PlayerController player = collision.GetComponentInParent<PlayerController>();
             if (player != null)
             {
                 player.canExecute = false;

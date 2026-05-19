@@ -2,8 +2,11 @@ using UnityEngine;
 
 public class EnemyPoints : MonoBehaviour
 {
-    [Tooltip("Points awarded when this enemy is killed")]
-    public int pointValue = 100;
+    [Tooltip("Points for a loud weapon kill")]
+    public int pointValue = 60;
+
+    [Tooltip("Bonus points for a stealth execution")]
+    public int stealthKillValue = 150;
 
     private bool killScored;
 
@@ -13,6 +16,15 @@ public class EnemyPoints : MonoBehaviour
         killScored = true;
 
         if (GameManager.Instance != null)
-            GameManager.Instance.RegisterEnemyKill(pointValue);
+            GameManager.Instance.RegisterEnemyKill(pointValue, false);
+    }
+
+    public void AwardStealthKillPoints()
+    {
+        if (killScored) return;
+        killScored = true;
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.RegisterEnemyKill(stealthKillValue, true);
     }
 }

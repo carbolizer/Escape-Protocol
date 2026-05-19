@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class InvisUI : MonoBehaviour
@@ -29,8 +31,26 @@ public class InvisUI : MonoBehaviour
         ApplyVisualStyle();
     }
 
-    private void Start()
+    private void OnEnable()
     {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        LayoutBar();
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        LayoutBar();
+    }
+
+    private IEnumerator Start()
+    {
+        LayoutBar();
+        yield return null;
         LayoutBar();
     }
 
