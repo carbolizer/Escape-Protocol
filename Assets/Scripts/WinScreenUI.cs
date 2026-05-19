@@ -82,8 +82,7 @@ public class WinScreenUI : MonoBehaviour
         if (uiBuilt) return;
         uiBuilt = true;
 
-        Canvas canvas = GetComponent<Canvas>() ?? FindFirstObjectByType<Canvas>();
-        if (canvas == null) return;
+        Canvas canvas = GetOrCreateWinCanvas();
 
         if (scoreSummaryText == null)
             scoreSummaryText = canvas.GetComponentInChildren<TextMeshProUGUI>(true);
@@ -113,7 +112,44 @@ public class WinScreenUI : MonoBehaviour
         }
 
         ApplyLayout(panel);
-        panel.SetAsFirstSibling();
+        panel.SetAsLastSibling();
+    }
+
+    private Canvas GetOrCreateWinCanvas()
+    {
+        Canvas existing = GetComponent<Canvas>();
+        if (existing != null)
+        {
+            existing.renderMode = RenderMode.ScreenSpaceOverlay;
+            existing.sortingOrder = 500;
+            return existing;
+        }
+
+        // Look for a canvas that already belongs to the WinScreen UI hierarchy.
+        Canvas[] all = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+        foreach (Canvas c in all)
+        {
+            if (c.transform == transform || c.transform.IsChildOf(transform) || transform.IsChildOf(c.transform))
+            {
+                c.renderMode = RenderMode.ScreenSpaceOverlay;
+                c.sortingOrder = 500;
+                return c;
+            }
+        }
+
+        // None found on this object — create a dedicated one.
+        Canvas fresh = gameObject.AddComponent<Canvas>();
+        fresh.renderMode = RenderMode.ScreenSpaceOverlay;
+        fresh.sortingOrder = 500;
+        if (gameObject.GetComponent<UnityEngine.UI.CanvasScaler>() == null)
+        {
+            UnityEngine.UI.CanvasScaler scaler = gameObject.AddComponent<UnityEngine.UI.CanvasScaler>();
+            scaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+        }
+        if (gameObject.GetComponent<UnityEngine.UI.GraphicRaycaster>() == null)
+            gameObject.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+        return fresh;
     }
 
     private static void ApplyLayout(RectTransform panel)
