@@ -1,13 +1,13 @@
 using UnityEngine;
 
 /// <summary>
-/// Spawned where a rock detonates. Distracts every EnemyAI within radius for the
+/// Spawned where a freeze potion detonates. Freezes every EnemyAI within radius for the
 /// supplied duration, while drawing a quickly fading ring on screen for feedback.
 /// </summary>
 public class DistractionPulse : MonoBehaviour
 {
     private float maxRadius;
-    private float distractionDuration;
+    private float freezeDuration;
     private float lifetime;
     private float elapsed;
     private SpriteRenderer ring;
@@ -26,15 +26,15 @@ public class DistractionPulse : MonoBehaviour
     private void Initialize(float radius, float duration)
     {
         maxRadius = Mathf.Max(0.5f, radius * 0.5f);
-        distractionDuration = Mathf.Max(0.5f, duration);
+        freezeDuration = Mathf.Max(0.5f, duration);
         lifetime = 0.55f;
         elapsed = 0f;
 
-        ApplyDistraction();
+        ApplyFreeze();
         BuildRing();
     }
 
-    private void ApplyDistraction()
+    private void ApplyFreeze()
     {
         Vector2 origin = transform.position;
         EnemyAI[] enemies = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
@@ -47,7 +47,7 @@ public class DistractionPulse : MonoBehaviour
             float distance = Vector2.Distance(origin, enemy.transform.position);
             if (distance > maxRadius) continue;
 
-            enemy.DistractTowards(origin, distractionDuration);
+            enemy.Freeze(freezeDuration);
         }
     }
 
@@ -60,7 +60,7 @@ public class DistractionPulse : MonoBehaviour
         visual.transform.SetParent(transform, false);
         ring = visual.AddComponent<SpriteRenderer>();
         ring.sprite = ringSprite;
-        ring.color = new Color(1f, 0.85f, 0.4f, 0.85f);
+        ring.color = new Color(0.35f, 0.75f, 1f, 0.85f);
         ring.sortingLayerName = "Decor";
         ring.sortingOrder = 70;
     }

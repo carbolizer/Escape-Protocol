@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
     {
         EnsureCameraShake();
         AssassinatePromptHUD.EnsureExists();
-        RockCountHUD.EnsureExists();
+        FreezePotionHUD.EnsureExists();
 
         if (Instance != null)
             Instance.EnsureStealthBar(scene);

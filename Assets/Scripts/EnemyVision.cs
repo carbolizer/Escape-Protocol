@@ -12,31 +12,60 @@ public class EnemyVision : MonoBehaviour
     private Transform visionForward;
     private float contactTimer;
     private Collider2D ownerCollider;
+    private Collider2D visionCollider;
+    private readonly Collider2D[] overlapResults = new Collider2D[8];
 
     private void Awake()
     {
         ConeSweep sweep = GetComponent<ConeSweep>();
         visionForward = sweep != null ? sweep.transform : transform;
-        ownerCollider = GetComponentInParent<Collider2D>();
+        visionCollider = GetComponent<Collider2D>();
+        ownerCollider = visionCollider != null ? visionCollider : GetComponentInParent<Collider2D>();
+    }
+
+    private void Update()
+    {
+        if (GameManager.IsGamePaused) return;
+
+        if (contactTimer > 0f)
+            contactTimer -= Time.deltaTime;
+
+        if (visionCollider == null)
+            visionCollider = GetComponent<Collider2D>();
+
+        if (visionCollider == null)
+            return;
+
+        int count = Physics2D.OverlapCollider(visionCollider, new ContactFilter2D().NoFilter(), overlapResults);
+        for (int i = 0; i < count; i++)
+        {
+            Collider2D hit = overlapResults[i];
+            if (hit == null) continue;
+
+            PlayerController player = hit.GetComponentInParent<PlayerController>();
+            if (player == null) continue;
+
+            TryDamagePlayer(hit, player);
+            return;
+        }
     }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
+        PlayerController player = collision.GetComponentInParent<PlayerController>();
+        if (player == null) return;
+
+        TryDamagePlayer(collision, player);
+    }
+
+    private void TryDamagePlayer(Collider2D playerCollider, PlayerController player)
+    {
         if (GameManager.IsGamePaused) return;
-        if (!collision.CompareTag("Player")) return;
-        if (!IsTargetInFront(collision.transform.position)) return;
-        if (!HasLineOfSightTo(collision)) return;
-
-        PlayerController player = collision.GetComponent<PlayerController>();
         if (player == null || player.isHidden) return;
+        if (contactTimer > 0f) return;
+        if (!HasLineOfSightTo(playerCollider)) return;
 
-        if (contactTimer > 0f)
-        {
-            contactTimer -= Time.deltaTime;
-            return;
-        }
-
-        PlayerHealth health = collision.GetComponent<PlayerHealth>();
+        PlayerHealth health = player.GetComponent<PlayerHealth>();
         if (health != null)
         {
             health.TakeDamage(1);
@@ -61,18 +90,5 @@ public class EnemyVision : MonoBehaviour
         }
 
         return true;
-    }
-
-    private bool IsTargetInFront(Vector3 targetPosition)
-    {
-        Vector2 toTarget = (Vector2)targetPosition - (Vector2)transform.position;
-        if (toTarget.sqrMagnitude < 0.0001f) return false;
-
-        Vector2 forward = visionForward.right;
-        if (forward.sqrMagnitude < 0.0001f)
-            forward = transform.right;
-
-        float dot = Vector2.Dot(forward.normalized, toTarget.normalized);
-        return dot >= Mathf.Cos(visionHalfAngle * Mathf.Deg2Rad);
     }
 }

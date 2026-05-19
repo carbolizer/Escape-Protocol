@@ -48,10 +48,11 @@ public class EnemyAI : MonoBehaviour
     private float disengageFreezeTimer;
     private bool wasPlayerHidden;
     private EnemyVisionConeVisual visionConeVisual;
-    private float distractionTimer;
-    private Vector2 distractionTarget;
+    private SpriteRenderer spriteRenderer;
+    private float frozenTimer;
+    private Color preFreezeColor;
 
-    public bool IsDistracted => distractionTimer > 0f;
+    public bool IsFrozen => frozenTimer > 0f;
 
     public float EffectiveVisionRange => Mathf.Max(hearingRadius, minAggroRadius);
     public float VisionHalfAngle => visionHalfAngle;
@@ -63,6 +64,7 @@ public class EnemyAI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         enemyCollider = GetComponent<Collider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         rb.linearDamping = 0f;
 
@@ -132,10 +134,15 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
-        if (distractionTimer > 0f)
+        if (frozenTimer > 0f)
         {
-            distractionTimer -= Time.fixedDeltaTime;
-            UpdateDistractedMovement();
+            frozenTimer -= Time.fixedDeltaTime;
+            rb.linearVelocity = Vector2.zero;
+            currentVelocity = Vector2.zero;
+
+            if (frozenTimer <= 0f)
+                RestoreAfterFreeze();
+
             return;
         }
 
@@ -272,45 +279,26 @@ public class EnemyAI : MonoBehaviour
         FaceDirection(-transform.right);
     }
 
-    /// <summary>
-    /// Called by distraction sources (rocks). Pulls the enemy's attention toward a point
-    /// for a short investigation period.
-    /// </summary>
-    public void DistractTowards(Vector2 source, float duration)
+    public void Freeze(float duration)
     {
-        distractionTarget = source;
-        distractionTimer = Mathf.Max(distractionTimer, duration);
-        aggroTimer = 0f;
+        if (frozenTimer <= 0f && spriteRenderer != null)
+            preFreezeColor = spriteRenderer.color;
 
-        Vector2 facing = source - (Vector2)transform.position;
-        if (facing.sqrMagnitude > 0.0001f)
-            FaceDirection(facing.normalized);
+        frozenTimer = Mathf.Max(frozenTimer, duration);
+        aggroTimer = 0f;
+        disengageFreezeTimer = 0f;
+        rb.linearVelocity = Vector2.zero;
+        currentVelocity = Vector2.zero;
+
+        if (spriteRenderer != null)
+            spriteRenderer.color = new Color(0.35f, 0.75f, 1f, 1f);
     }
 
-    private void UpdateDistractedMovement()
+    private void RestoreAfterFreeze()
     {
-        Vector2 toSource = distractionTarget - (Vector2)transform.position;
-        Vector2 desiredVelocity;
+        if (spriteRenderer != null)
+            spriteRenderer.color = preFreezeColor;
 
-        if (toSource.magnitude < 0.6f)
-        {
-            desiredVelocity = Vector2.zero;
-        }
-        else
-        {
-            desiredVelocity = toSource.normalized * (investigateSpeed * 0.55f);
-        }
-
-        currentVelocity = Vector2.MoveTowards(currentVelocity, desiredVelocity, acceleration * Time.fixedDeltaTime);
-        rb.linearVelocity = currentVelocity;
-
-        if (currentVelocity.sqrMagnitude > 0.05f)
-            FaceDirection(currentVelocity.normalized);
-
-        if (distractionTimer <= 0f)
-        {
-            // Resume normal patrol on next tick.
-            waitTimer = Mathf.Max(waitTimer, 0.25f);
-        }
+        waitTimer = Mathf.Max(waitTimer, 0.25f);
     }
 }

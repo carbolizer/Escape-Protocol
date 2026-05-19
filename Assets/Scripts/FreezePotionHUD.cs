@@ -4,12 +4,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// Persistent screen-space label that reflects the player's remaining rocks.
+/// Persistent screen-space label that reflects the player's remaining freeze potions.
 /// Self-creates on first gameplay scene load.
 /// </summary>
-public class RockCountHUD : MonoBehaviour
+public class FreezePotionHUD : MonoBehaviour
 {
-    public static RockCountHUD Instance { get; private set; }
+    public static FreezePotionHUD Instance { get; private set; }
     private static readonly string[] GameplayScenes = { "Level1", "Level2", "Level3", "BeginningDungeon" };
 
     private Canvas hudCanvas;
@@ -19,9 +19,9 @@ public class RockCountHUD : MonoBehaviour
     {
         if (Instance != null) return;
 
-        GameObject go = new GameObject("RockCountHUD");
+        GameObject go = new GameObject("FreezePotionHUD");
         DontDestroyOnLoad(go);
-        go.AddComponent<RockCountHUD>();
+        go.AddComponent<FreezePotionHUD>();
     }
 
     private void Awake()
@@ -52,13 +52,14 @@ public class RockCountHUD : MonoBehaviour
         if (!gameplay) return;
 
         PlayerController player = FindAnyObjectByType<PlayerController>();
-        int rocks = player != null ? player.RocksRemaining : 0;
-        label.text = $"Rocks  {rocks}/{(player != null ? player.rocksPerLevel : 0)}   <size=70%>(Q to throw)";
+        int potions = player != null ? player.FreezePotionsRemaining : 0;
+        int maxPotions = player != null ? player.freezePotionsPerLevel : 0;
+        label.text = $"Freeze Potions  {potions}/{maxPotions}   <size=70%>(Q to throw)";
     }
 
     private void BuildUI()
     {
-        GameObject canvasGo = new GameObject("RockCountCanvas");
+        GameObject canvasGo = new GameObject("FreezePotionCanvas");
         canvasGo.transform.SetParent(transform, false);
         hudCanvas = canvasGo.AddComponent<Canvas>();
         hudCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -69,14 +70,14 @@ public class RockCountHUD : MonoBehaviour
         scaler.referenceResolution = new Vector2(1920, 1080);
         canvasGo.AddComponent<GraphicRaycaster>();
 
-        GameObject textGo = new GameObject("RockLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
+        GameObject textGo = new GameObject("FreezePotionLabel", typeof(RectTransform), typeof(TextMeshProUGUI));
         textGo.layer = 5;
         RectTransform rect = textGo.GetComponent<RectTransform>();
         rect.SetParent(canvasGo.transform, false);
         rect.anchorMin = new Vector2(0f, 1f);
         rect.anchorMax = new Vector2(0f, 1f);
         rect.pivot = new Vector2(0f, 1f);
-        rect.sizeDelta = new Vector2(400, 60);
+        rect.sizeDelta = new Vector2(520, 60);
         rect.anchoredPosition = new Vector2(40f, -160f);
 
         label = textGo.GetComponent<TextMeshProUGUI>();
@@ -88,10 +89,10 @@ public class RockCountHUD : MonoBehaviour
 
         label.fontSize = 30;
         label.fontStyle = FontStyles.Bold;
-        label.color = new Color(1f, 0.9f, 0.6f, 1f);
-        label.text = "Rocks  0/0";
+        label.color = new Color(0.65f, 0.9f, 1f, 1f);
+        label.text = "Freeze Potions  0/0";
         label.outlineWidth = 0.25f;
-        label.outlineColor = new Color(0.1f, 0.06f, 0.02f, 1f);
+        label.outlineColor = new Color(0.02f, 0.06f, 0.1f, 1f);
         label.raycastTarget = false;
 
         hudCanvas.gameObject.SetActive(false);

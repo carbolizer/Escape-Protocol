@@ -1,10 +1,10 @@
 using UnityEngine;
 
 /// <summary>
-/// Travels in a straight line, ignoring the player and other rocks. On hitting a
-/// solid (non-trigger) collider, spawns a DistractionPulse and despawns.
+/// Travels in a straight line, ignoring the player and other freeze potions.
+/// On hitting a solid (non-trigger) collider, spawns a freeze pulse and despawns.
 /// </summary>
-public class RockProjectile : MonoBehaviour
+public class FreezePotionProjectile : MonoBehaviour
 {
     private Vector2 direction;
     private float speed;
@@ -15,13 +15,13 @@ public class RockProjectile : MonoBehaviour
     private bool detonated;
     private SpriteRenderer spriteRenderer;
 
-    private static Sprite rockSprite;
+    private static Sprite potionSprite;
 
     public void Launch(Vector2 dir, float speed, float lifetime, float pulseRadius, float pulseDuration, Transform owner)
     {
-        this.direction = dir.normalized;
+        direction = dir.normalized;
         this.speed = speed;
-        this.remainingLifetime = lifetime;
+        remainingLifetime = lifetime;
         this.pulseRadius = pulseRadius;
         this.pulseDuration = pulseDuration;
         this.owner = owner;
@@ -36,11 +36,11 @@ public class RockProjectile : MonoBehaviour
         if (spriteRenderer == null)
             spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
 
-        if (rockSprite == null)
-            rockSprite = CreateRockSprite();
+        if (potionSprite == null)
+            potionSprite = CreatePotionSprite();
 
-        spriteRenderer.sprite = rockSprite;
-        spriteRenderer.color = new Color(0.65f, 0.62f, 0.55f, 1f);
+        spriteRenderer.sprite = potionSprite;
+        spriteRenderer.color = new Color(0.45f, 0.85f, 1f, 1f);
         spriteRenderer.sortingLayerName = "Decor";
         spriteRenderer.sortingOrder = 55;
         transform.localScale = Vector3.one * 0.35f;
@@ -67,7 +67,7 @@ public class RockProjectile : MonoBehaviour
             Collider2D col = hits[i].collider;
             if (col == null || col.isTrigger) continue;
             if (owner != null && (col.transform == owner || col.transform.IsChildOf(owner))) continue;
-            if (col.GetComponent<RockProjectile>() != null) continue;
+            if (col.GetComponent<FreezePotionProjectile>() != null) continue;
 
             Detonate(hits[i].point);
             return;
@@ -88,7 +88,7 @@ public class RockProjectile : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private static Sprite CreateRockSprite()
+    private static Sprite CreatePotionSprite()
     {
         const int size = 16;
         Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -45,15 +46,17 @@ public class PlayerController : MonoBehaviour
     public bool IsDashing => dashTimer > 0f;
     public bool IsDashInvincible => IsDashing;
 
-    [Header("Throwables (Q)")]
-    public GameObject rockPrefab;
-    public int rocksPerLevel = 2;
+    [Header("Freeze Potions (Q)")]
+    [FormerlySerializedAs("rockPrefab")]
+    public GameObject freezePotionPrefab;
+    [FormerlySerializedAs("rocksPerLevel")]
+    public int freezePotionsPerLevel = 2;
     public float throwSpeed = 14f;
     public float throwLifetime = 1.5f;
     public float distractionRadius = 4.5f;
-    public float distractionDuration = 3f;
-    private int rocksRemaining;
-    public int RocksRemaining => rocksRemaining;
+    public float distractionDuration = 5f;
+    private int freezePotionsRemaining;
+    public int FreezePotionsRemaining => freezePotionsRemaining;
 
     [Header("Stealth Kill")]
     public bool canExecute = false;
@@ -71,7 +74,7 @@ public class PlayerController : MonoBehaviour
         bodyCollider = GetComponent<Collider2D>();
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         rb.linearDamping = 0f;
-        rocksRemaining = Mathf.Max(0, rocksPerLevel);
+        freezePotionsRemaining = Mathf.Max(0, freezePotionsPerLevel);
     }
 
     private void OnEnable()
@@ -92,7 +95,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        rocksRemaining = Mathf.Max(0, rocksPerLevel);
+        freezePotionsRemaining = Mathf.Max(0, freezePotionsPerLevel);
     }
 
     private void Update()
@@ -282,24 +285,24 @@ public class PlayerController : MonoBehaviour
     private void HandleThrowInput()
     {
         if (!Keyboard.current.qKey.wasPressedThisFrame) return;
-        if (rocksRemaining <= 0) return;
+        if (freezePotionsRemaining <= 0) return;
 
         Vector2 dir = lastFacing.sqrMagnitude > 0.0001f ? lastFacing.normalized : Vector2.right;
         Vector3 spawnPos = transform.position + (Vector3)(dir * 0.5f);
 
-        GameObject rock = rockPrefab != null
-            ? Instantiate(rockPrefab, spawnPos, Quaternion.identity)
-            : new GameObject("Rock");
+        GameObject potion = freezePotionPrefab != null
+            ? Instantiate(freezePotionPrefab, spawnPos, Quaternion.identity)
+            : new GameObject("FreezePotion");
 
-        if (rockPrefab == null)
-            rock.transform.position = spawnPos;
+        if (freezePotionPrefab == null)
+            potion.transform.position = spawnPos;
 
-        RockProjectile projectile = rock.GetComponent<RockProjectile>();
+        FreezePotionProjectile projectile = potion.GetComponent<FreezePotionProjectile>();
         if (projectile == null)
-            projectile = rock.AddComponent<RockProjectile>();
+            projectile = potion.AddComponent<FreezePotionProjectile>();
 
         projectile.Launch(dir, throwSpeed, throwLifetime, distractionRadius, distractionDuration, transform);
-        rocksRemaining--;
+        freezePotionsRemaining--;
     }
 
     private IEnumerator PerformStealthKill(EnemyExecution execution)

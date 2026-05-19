@@ -147,7 +147,7 @@ public class PauseMenuManager : MonoBehaviour
             "A / Left Arrow - Move Left\n" +
             "D / Right Arrow - Move Right\n" +
             "Space - Dash (i-frames, phases enemies, refunds stealth)\n" +
-            "Q - Throw distraction rock (2 per level)\n" +
+            "Q - Throw freeze potion (2 per level)\n" +
             "F (hold) - Stealth camouflage\n" +
             "E - Stealth kill / interact (best score)\n" +
             "P or Esc - Pause / Resume",
