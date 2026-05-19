@@ -41,7 +41,7 @@ public class RockProjectile : MonoBehaviour
 
         spriteRenderer.sprite = rockSprite;
         spriteRenderer.color = new Color(0.65f, 0.62f, 0.55f, 1f);
-        spriteRenderer.sortingLayerName = "Default";
+        spriteRenderer.sortingLayerName = "Decor";
         spriteRenderer.sortingOrder = 55;
         transform.localScale = Vector3.one * 0.35f;
     }

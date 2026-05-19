@@ -25,7 +25,7 @@ public class DistractionPulse : MonoBehaviour
 
     private void Initialize(float radius, float duration)
     {
-        maxRadius = Mathf.Max(0.5f, radius);
+        maxRadius = Mathf.Max(0.5f, radius * 0.5f);
         distractionDuration = Mathf.Max(0.5f, duration);
         lifetime = 0.55f;
         elapsed = 0f;
@@ -61,7 +61,7 @@ public class DistractionPulse : MonoBehaviour
         ring = visual.AddComponent<SpriteRenderer>();
         ring.sprite = ringSprite;
         ring.color = new Color(1f, 0.85f, 0.4f, 0.85f);
-        ring.sortingLayerName = "Default";
+        ring.sortingLayerName = "Decor";
         ring.sortingOrder = 70;
     }
 
