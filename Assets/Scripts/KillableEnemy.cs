@@ -4,10 +4,17 @@ public class KillableEnemy : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Weapon"))
+        if (!collision.CompareTag("Weapon")) return;
+
+        EnemyHealth health = GetComponent<EnemyHealth>();
+        if (health != null)
         {
-            AwardPointsAndDestroy();
+            if (health.ApplyDamage(1))
+                AwardPointsAndDestroy();
+            return;
         }
+
+        AwardPointsAndDestroy();
     }
 
     public void AwardPointsAndDestroy()

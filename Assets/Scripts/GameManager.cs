@@ -1,3 +1,4 @@
+using System.Collections;
 using HighScore;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -27,6 +28,8 @@ public class GameManager : MonoBehaviour
     public int EnemiesKilled { get; private set; }
     public int StealthKills { get; private set; }
     public int KillScore { get; private set; }
+    public int CollectibleScore { get; private set; }
+    public int CollectiblesGathered { get; private set; }
     public int TimeBonus { get; private set; }
     public int FinalScore { get; private set; }
     public float RunElapsedSeconds { get; private set; }
@@ -118,12 +121,22 @@ public class GameManager : MonoBehaviour
         EnemiesKilled = 0;
         StealthKills = 0;
         KillScore = 0;
+        CollectibleScore = 0;
+        CollectiblesGathered = 0;
         TimeBonus = 0;
         FinalScore = 0;
         RunElapsedSeconds = 0f;
         IsRunActive = true;
         RunFinalized = false;
         ResetProgress();
+    }
+
+    public void RegisterCollectible(int points)
+    {
+        if (!IsRunActive || RunFinalized) return;
+
+        CollectiblesGathered++;
+        CollectibleScore += Mathf.Max(0, points);
     }
 
     public void RegisterEnemyKill(int points, bool wasStealthKill)
@@ -149,7 +162,7 @@ public class GameManager : MonoBehaviour
 
         int timePenalty = Mathf.FloorToInt(RunElapsedSeconds) * timePenaltyPerSecond;
         TimeBonus = Mathf.Max(0, maxTimeBonus - timePenalty);
-        FinalScore = KillScore + TimeBonus;
+        FinalScore = KillScore + CollectibleScore + TimeBonus;
     }
 
     public string GetFormattedRunTime()
@@ -171,7 +184,7 @@ public class GameManager : MonoBehaviour
         if (RunFinalized)
             return FinalScore;
 
-        return KillScore + GetProjectedTimeBonus();
+        return KillScore + CollectibleScore + GetProjectedTimeBonus();
     }
 
     public void AddInvisEnergy(float amount)
@@ -190,6 +203,8 @@ public class GameManager : MonoBehaviour
         EnemiesKilled = 0;
         StealthKills = 0;
         KillScore = 0;
+        CollectibleScore = 0;
+        CollectiblesGathered = 0;
         TimeBonus = 0;
         FinalScore = 0;
         RunElapsedSeconds = 0f;

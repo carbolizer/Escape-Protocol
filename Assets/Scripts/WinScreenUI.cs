@@ -51,6 +51,7 @@ public class WinScreenUI : MonoBehaviour
             $"Final Score: {gm.FinalScore}\n" +
             $"Enemies Defeated: {gm.EnemiesKilled} (Stealth: {gm.StealthKills})\n" +
             $"Kill Score: +{gm.KillScore} pts\n" +
+            $"Collectibles: {gm.CollectiblesGathered} (+{gm.CollectibleScore} pts)\n" +
             $"Time: {gm.GetFormattedRunTime()} (+{gm.TimeBonus} pts)";
     }
 

@@ -86,6 +86,7 @@ public class PauseMenuManager : MonoBehaviour
         scoreText.text =
             $"Current Score: {gm.GetCurrentScore()}\n" +
             $"Kills: {gm.EnemiesKilled} (Stealth: {gm.StealthKills}, +{gm.KillScore} pts)\n" +
+            $"Collectibles: {gm.CollectiblesGathered} (+{gm.CollectibleScore} pts)\n" +
             $"Time: {gm.GetFormattedRunTime()} (+{gm.GetProjectedTimeBonus()} pts)";
     }
 
